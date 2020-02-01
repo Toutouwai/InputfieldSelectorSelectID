@@ -1,0 +1,32 @@
+.issi-open {
+  border: 0;
+  padding: 0;
+  background: none;
+  width: 26px;
+  height: 40px;
+  position: relative;
+  margin-left: -26px;
+  z-index: 10;
+  cursor: pointer;
+  opacity: 0.5;
+  display: none; }
+  .issi-open:hover {
+    opacity: 1; }
+  .issi-open:focus {
+    outline: none; }
+  .issi-open i {
+    float: none !important; }
+
+.vex.vex-theme-default .issi-vex {
+  width: 800px !important;
+  background: #fff !important;
+  font-size: 16px; }
+  .vex.vex-theme-default .issi-vex .issi-head {
+    color: #50739b;
+    font-size: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #d9e1ea; }
+  .vex.vex-theme-default .issi-vex .InputfieldContent {
+    padding: 0; }
+  .vex.vex-theme-default .issi-vex .aos_pagelist_unselect:focus {
+    outline: none; }

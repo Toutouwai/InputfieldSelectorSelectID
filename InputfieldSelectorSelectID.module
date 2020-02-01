@@ -1,0 +1,85 @@
+<?php namespace ProcessWire;
+
+class InputfieldSelectorSelectID extends WireData implements Module {
+
+	/**
+	 * Module information
+	 */
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'Inputfield Selector Select ID',
+			'summary' => 'Uses the Page List Select inputfield for user-friendly input of page IDs into Inputfield Selector.',
+			'version' => '0.1.0',
+			'author' => 'Robin Sallis',
+			'href' => 'https://github.com/Toutouwai/InputfieldSelectorSelectID',
+			'icon' => 'bolt',
+			'autoload' => 'template=admin',
+			'requires' => 'ProcessWire>=3.0.0, PHP>=5.4.0',
+		);
+	}
+
+	/**
+	 * Ready
+	 */
+	public function ready() {
+		$this->addHookAfter('InputfieldSelector::renderReadyHook', $this, 'afterRenderReady');
+		$this->addHookAfter('InputfieldSelector::render', $this, 'afterRender');
+	}
+
+	/**
+	 * After InputfieldSelector::renderReadyHook
+	 * Load assets
+	 *
+	 * @param HookEvent $event
+	 */
+	protected function afterRenderReady(HookEvent $event) {
+		// Ensure Page List Select assets are loaded
+		$f = $event->wire('modules')->get('InputfieldPageListSelect');
+		$f->renderReady();
+
+		// Use Vex
+		$this->wire('modules')->get('JqueryUI')->use('vex');
+
+		// Add module CSS and JS
+		$config = $this->wire('config');
+		$info = $this->getModuleInfo();
+		$version = $info['version'];
+		$config->styles->add($config->urls->$this . "{$this}.css?v=$version");
+		$config->scripts->add($config->urls->$this . "{$this}.js?v=$version");
+	}
+
+	/**
+	 * After InputfieldSelector::render
+	 * Add markup
+	 *
+	 * @param HookEvent $event
+	 */
+	protected function afterRender(HookEvent $event) {
+		$out = $event->return;
+
+		// Get PageListSelect markup
+		/* @var InputfieldPageListSelect $f */
+		$f = $event->wire('modules')->get('InputfieldPageListSelect');
+		$f->name = '_issi_select';
+		$f_render = $f->render();
+
+		// Translatable strings
+		$button_title = $this->_('Select a page ID visually');
+		$heading = $this->_('Select a page');
+
+		// Add markup
+		$out .= <<<EOT
+<button type="button" class="issi-open" title="$button_title"><i class="fa fa-fw fa-bolt"></i></button>
+<script type="text/html" class="issi-template">
+<h3 class="issi-head">$heading</h3>
+<div class="InputfieldContent">
+	<div class="InputfieldPageListSelect">
+		$f_render
+	</div>
+</div>
+</script>
+EOT;
+		$event->return = $out;
+	}
+
+}
