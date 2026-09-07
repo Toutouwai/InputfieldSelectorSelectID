@@ -9,7 +9,7 @@ class InputfieldSelectorSelectID extends WireData implements Module {
 		return array(
 			'title' => 'Inputfield Selector Select ID',
 			'summary' => 'Uses the Page List Select inputfield for user-friendly input of page IDs into Inputfield Selector.',
-			'version' => '0.1.0',
+			'version' => '0.1.1',
 			'author' => 'Robin Sallis',
 			'href' => 'https://github.com/Toutouwai/InputfieldSelectorSelectID',
 			'icon' => 'bolt',
@@ -55,31 +55,58 @@ class InputfieldSelectorSelectID extends WireData implements Module {
 	 * @param HookEvent $event
 	 */
 	protected function afterRender(HookEvent $event) {
+		$inputfieldSelector = $event->object;
 		$out = $event->return;
 
-		// Get PageListSelect markup
-		/* @var InputfieldPageListSelect $f */
-		$f = $event->wire('modules')->get('InputfieldPageListSelect');
-		$f->name = '_issi_select';
-		$f_render = $f->render();
+		// Return early if not allowed for this instance of InputfieldSelector
+		if(!$this->enableModule($inputfieldSelector)) return;
+
+		// Get PageListSelect
+		/** @var InputfieldPageListSelect $pls */
+		$pls = $this->getPageListSelect($inputfieldSelector);
+		$pls->name = '_issi_select';
+		$plsRender = $pls->render();
 
 		// Translatable strings
-		$button_title = $this->_('Select a page ID visually');
+		$buttonTitle = $this->_('Select a page ID visually');
 		$heading = $this->_('Select a page');
 
 		// Add markup
 		$out .= <<<EOT
-<button type="button" class="issi-open" title="$button_title"><i class="fa fa-fw fa-bolt"></i></button>
+<button type="button" class="issi-open" title="$buttonTitle"><i class="fa fa-fw fa-bolt"></i></button>
 <script type="text/html" class="issi-template">
 <h3 class="issi-head">$heading</h3>
 <div class="InputfieldContent">
 	<div class="InputfieldPageListSelect">
-		$f_render
+		$plsRender
 	</div>
 </div>
 </script>
 EOT;
 		$event->return = $out;
+	}
+
+	/**
+	 * Hookable method to determine whether InputfieldSelectorSelectID is allowed for
+	 * the given instance of InputfieldSelector
+	 *
+	 * @param InputfieldPageListSelect $inputfieldSelector
+	 * @return bool
+	 */
+	protected function ___enableModule(InputfieldSelector $inputfieldSelector) {
+		return true;
+	}
+
+	/**
+	 * Hookable method to get InputfieldPageListSelect
+	 *
+	 * @param InputfieldPageListSelect $inputfieldSelector
+	 * @return InputfieldPageListSelect
+	 */
+	protected function ___getPageListSelect(InputfieldSelector $inputfieldSelector) {
+		/** @var InputfieldPageListSelect $pls */
+		$pls = $this->wire()->modules->get('InputfieldPageListSelect');
+		return $pls;
 	}
 
 }
